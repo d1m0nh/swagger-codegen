@@ -1,3 +1,9 @@
+### Generate go-json-rpc client
+```
+./run-in-docker.sh generate -i swagger.yaml -l go -o /gen/go-jsonrpc-client -t modules/swagger-codegen/src/main/resources/go-rpc
+```
+
+
 # Swagger Code Generator
 
 - Master (2.4.0): [![Build Status](https://img.shields.io/travis/swagger-api/swagger-codegen/master.svg?label=Petstore%20Integration%20Test)](https://travis-ci.org/swagger-api/swagger-codegen)
