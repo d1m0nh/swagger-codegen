@@ -48,29 +48,29 @@ func (a *{{{classname}}}Service) {{{nickname}}}(ctx context.Context{{#hasParams}
 	{{^required}}
 	{{#isPrimitiveType}}
 	if err := typeCheckParameter(localVarOptionals["{{paramName}}"], "{{{dataType}}}", "{{paramName}}"); err != nil {
-		return &successPayload, nil, createError(-100, err.Error())
+		return &successPayload, nil, createError(http.StatusPreconditionFailed, err.Error())
 	}
 	{{/isPrimitiveType}}
 	{{/required}}
 	{{#required}}
 	{{#minItems}}
 	if len({{paramName}}) < {{minItems}} {
-		return &successPayload, nil, createError(-100, reportError("{{paramName}} must have at least {{minItems}} elements"))
+		return &successPayload, nil, createError(http.StatusPreconditionFailed, reportError("{{paramName}} must have at least {{minItems}} elements"))
 	}
 	{{/minItems}}
 	{{#maxItems}}
 	if len({{paramName}}) > {{maxItems}} {
-		return &successPayload, nil, createError(-100, reportError("{{paramName}} must have less than {{maxItems}} elements"))
+		return &successPayload, nil, createError(http.StatusPreconditionFailed, reportError("{{paramName}} must have less than {{maxItems}} elements"))
 	}
 	{{/maxItems}}
 	{{#minLength}}
 	if strlen({{paramName}}) < {{minLength}} {
-		return &successPayload, nil, createError(-100, reportError("{{paramName}} must have at least {{minLength}} elements"))
+		return &successPayload, nil, createError(http.StatusPreconditionFailed, reportError("{{paramName}} must have at least {{minLength}} elements"))
 	}
 	{{/minLength}}
 	{{#maxLength}}
 	if strlen({{paramName}}) > {{maxLength}} {
-		return &successPayload, nil, createError(-100, reportError("{{paramName}} must have less than {{maxLength}} elements"))
+		return &successPayload, nil, createError(http.StatusPreconditionFailed, reportError("{{paramName}} must have less than {{maxLength}} elements"))
 	}
 	{{/maxLength}}
 	{{#minimum}}
@@ -81,7 +81,7 @@ func (a *{{{classname}}}Service) {{{nickname}}}(ctx context.Context{{#hasParams}
 	{{^isString}}
 	if {{paramName}} < {{minimum}} {
 	{{/isString}}
-		return &successPayload, nil, createError(-100, reportError("{{paramName}} must be greater than {{minimum}}"))
+		return &successPayload, nil, createError(http.StatusPreconditionFailed, reportError("{{paramName}} must be greater than {{minimum}}"))
 	}
 	{{/minimum}}
 	{{#maximum}}
@@ -92,7 +92,7 @@ func (a *{{{classname}}}Service) {{{nickname}}}(ctx context.Context{{#hasParams}
 	{{^isString}}
 	if {{paramName}} > {{maximum}} {
 	{{/isString}}
-		return &successPayload, nil, createError(-100, reportError("{{paramName}} must be less than {{maximum}}"))
+		return &successPayload, nil, createError(http.StatusPreconditionFailed, reportError("{{paramName}} must be less than {{maximum}}"))
 	}
 	{{/maximum}}
 	{{/required}}
@@ -206,19 +206,19 @@ func (a *{{{classname}}}Service) {{{nickname}}}(ctx context.Context{{#hasParams}
 {{/authMethods}}
 	r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
-		return &successPayload, nil, createError(-100, err.Error())
+		return &successPayload, nil, createError(http.StatusPreconditionFailed, err.Error())
 	}
 
 	localVarHttpResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHttpResponse == nil {
-		return &successPayload, localVarHttpResponse, createError(-100, err.Error())
+		return &successPayload, localVarHttpResponse, createError(http.StatusFailedDependency, err.Error())
 	}
 	defer localVarHttpResponse.Body.Close()
 	bodyBytes, _ := ioutil.ReadAll(localVarHttpResponse.Body)
 	if localVarHttpResponse.StatusCode >= 300 {
 		errorPayload = ErrorResponse{}
 		if err = json.Unmarshal(bodyBytes, &errorPayload); err != nil {
-			return &successPayload, localVarHttpResponse, createError(-100, fmt.Sprintf("Unmarschal error payload failed: %s", err.Error()))
+			return &successPayload, localVarHttpResponse, createError(http.StatusExpectationFailed, fmt.Sprintf("Unmarschal error payload failed: %s", err.Error()))
 		}
 
 		return &successPayload, localVarHttpResponse, errorPayload.Error_
@@ -229,7 +229,7 @@ func (a *{{{classname}}}Service) {{{nickname}}}(ctx context.Context{{#hasParams}
 	contentType := localVarHttpResponse.Header.Get("content-type")
 	if strings.Contains(contentType, "application/xml") {
 		if err = xml.NewDecoder(localVarHttpResponse.Body).Decode(&rpcResponse); err != nil {
-			return &successPayload, localVarHttpResponse, createError(-100, fmt.Sprintf("Unmarschal success payload failed: %s", err.Error()))
+			return &successPayload, localVarHttpResponse, createError(http.StatusExpectationFailed, fmt.Sprintf("Unmarschal success payload failed: %s", err.Error()))
 		}
 
 		return &successPayload, localVarHttpResponse, bil
@@ -237,7 +237,7 @@ func (a *{{{classname}}}Service) {{{nickname}}}(ctx context.Context{{#hasParams}
 	{{/withXml}}
 
 	if err = json.Unmarshal(bodyBytes, &successPayload); err != nil {
-		return &successPayload, localVarHttpResponse, createError(-100, fmt.Sprintf("Unmarschal success payload failed: %s", err.Error()))
+		return &successPayload, localVarHttpResponse, createError(http.StatusExpectationFailed, fmt.Sprintf("Unmarschal success payload failed: %s", err.Error()))
 	}
 
 {{/returnType}}
