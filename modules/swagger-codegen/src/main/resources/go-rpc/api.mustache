@@ -238,9 +238,13 @@ func (a *{{{classname}}}Service) {{{nickname}}}(ctx context.Context{{#hasParams}
 	}
 	{{/withXml}}
 
-	if err = json.Unmarshal(bodyBytes, &successPayload); err != nil {
+	if err = json.Unmarshal(bodyBytes, &rpcResponse); err != nil {
 		return &successPayload, localVarHttpResponse, createError(http.StatusExpectationFailed, fmt.Sprintf("Unmarschal success payload failed: %s", err.Error()))
 	}
+
+	if rpcResponse.Result == nil {
+        return &successPayload, localVarHttpResponse, createError(http.StatusExpectationFailed, fmt.Sprintf("Success payload is null: %s", err.Error()))
+    }
 
 {{/returnType}}
 	return rpcResponse.Result, localVarHttpResponse, nil

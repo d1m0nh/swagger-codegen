@@ -1,3 +1,5 @@
+cracknel*
+
 .vscode
 *.iml
 out/
@@ -25,6 +27,8 @@ packages/
 .packages
 .vagrant/
 .vscode/
+.m2
+
 
 .settings
 
